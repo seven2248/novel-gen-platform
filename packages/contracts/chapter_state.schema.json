@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schema-version": "1.0.0",
+  "type": "object",
+  "title": "Chapter State",
+  "description": "章节状态枚举与章节状态机",
+  "properties": {
+    "chapter_id": {"type": "string"},
+    "state": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "planning",
+        "drafting",
+        "reviewing",
+        "pending_confirmation",
+        "committed",
+        "published"
+      ]
+    },
+    "version": {"type": "integer"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "required": ["chapter_id", "state", "version"]
+}

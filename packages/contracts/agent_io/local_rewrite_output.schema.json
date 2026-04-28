@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schema-version": "1.0.0",
+  "type": "object",
+  "title": "Local Rewrite Output",
+  "description": "本地改写链路输出",
+  "properties": {
+    "rewritten_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_summary": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "tone_shift": {
+      "type": "string"
+    },
+    "risks": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "required": ["rewritten_text", "change_summary", "tone_shift", "risks"]
+}

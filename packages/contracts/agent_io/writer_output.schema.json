@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schema-version": "1.0.0",
+  "type": "object",
+  "title": "Writer Output",
+  "description": "Writer Agent 输出",
+  "properties": {
+    "draft_text": {"type": "string", "minLength": 1},
+    "used_hooks": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "used_cards": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "required": ["draft_text"]
+}

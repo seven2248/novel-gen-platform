@@ -1,0 +1,19 @@
+{
+  "name": "@novel-gen/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "vue": "^3.5.0",
+    "element-plus": "^2.9.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vitest": "^2.0.0",
+    "@vitejs/plugin-vue": "^5.0.0"
+  }
+}

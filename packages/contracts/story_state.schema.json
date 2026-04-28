@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schema-version": "1.0.0",
+  "type": "object",
+  "title": "Story State Core",
+  "description": "唯一真相源，包含所有故事状态",
+  "properties": {
+    "project_id": {"type": "string"},
+    "version": {"type": "integer"},
+    "title": {"type": "string"},
+    "genre": {"type": "string"},
+    "style": {"type": "string"},
+    "characters": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Character"}
+    },
+    "relationships": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Relationship"}
+    },
+    "hooks": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Hook"}
+    },
+    "resources": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Resource"}
+    },
+    "chapters": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/ChapterSummary"}
+    },
+    "style_constraints": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "required": ["project_id", "version", "title"],
+  "definitions": {
+    "Character": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "status": {"type": "string", "enum": ["alive", "dead", "unknown"]},
+        "location": {"type": "string"},
+        "description": {"type": "string"}
+      },
+      "required": ["id", "name", "status"]
+    },
+    "Relationship": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "from_char": {"type": "string"},
+        "to_char": {"type": "string"},
+        "type": {"type": "string"},
+        "status": {"type": "string"}
+      },
+      "required": ["id", "from_char", "to_char"]
+    },
+    "Hook": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "type": {"type": "string", "enum": ["foreshadow", "cliffhanger", "mystery", "revelation"]},
+        "status": {"type": "string", "enum": ["open", "paid_off", "abandoned"]},
+        "chapter_introduced": {"type": "integer"},
+        "expected_payoff_chapter": {"type": "integer"},
+        "description": {"type": "string"}
+      },
+      "required": ["id", "type", "status"]
+    },
+    "Resource": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "type": {"type": "string"},
+        "quantity": {"type": "number"},
+        "description": {"type": "string"}
+      },
+      "required": ["id", "name"]
+    },
+    "ChapterSummary": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "number": {"type": "integer"},
+        "title": {"type": "string"},
+        "summary": {"type": "string"},
+        "state": {"type": "string"},
+        "word_count": {"type": "integer"}
+      },
+      "required": ["id", "number", "title", "state"]
+    }
+  }
+}

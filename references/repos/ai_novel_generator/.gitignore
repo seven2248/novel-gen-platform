@@ -1,0 +1,10 @@
+**/__pycache__/
+*.py[cod]
+*$py.class
+/static
+/Developer_Documentation
+.venv
+.vscode
+config.yaml
+publish-public.ps1
+PUBLIC_RELEASE.md

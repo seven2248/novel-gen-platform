@@ -1,0 +1,9 @@
+{
+  "name": "novel-gen",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "pnpm -r test",
+    "dev": "pnpm -r --parallel dev"
+  }
+}

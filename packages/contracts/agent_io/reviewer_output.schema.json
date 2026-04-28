@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schema-version": "1.0.0",
+  "type": "object",
+  "title": "Reviewer Output",
+  "description": "Reviewer Agent 输出",
+  "properties": {
+    "consistency_issues": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Issue"}
+    },
+    "style_issues": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Issue"}
+    },
+    "readability_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "hook_strength_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "actionable_suggestions": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/Suggestion"}
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    }
+  },
+  "required": ["consistency_issues", "style_issues", "readability_score", "hook_strength_score", "actionable_suggestions", "risk_level"],
+  "definitions": {
+    "Issue": {
+      "type": "object",
+      "properties": {
+        "type": {"type": "string"},
+        "location": {"type": "string"},
+        "description": {"type": "string"},
+        "severity": {"type": "string", "enum": ["critical", "major", "minor"]}
+      },
+      "required": ["type", "description"]
+    },
+    "Suggestion": {
+      "type": "object",
+      "properties": {
+        "type": {"type": "string", "enum": ["hook", "pace", "character", "style", "consistency"]},
+        "message": {"type": "string"},
+        "location": {"type": "string"}
+      },
+      "required": ["type", "message"]
+    }
+  }
+}

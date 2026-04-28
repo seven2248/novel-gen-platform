@@ -1,0 +1,69 @@
+name: minimum_set
+description: Phase A minimum regression suite — 3 cases covering core loop
+cases:
+  - id: straight_chapter_generation
+    description: Straight chapter generation — no edge cases
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: alive
+          location: 青云宗
+      hooks:
+        - id: hook-1
+          type: foreshadow
+          status: open
+          chapter_introduced: 0
+      chapters: []
+      style_constraints:
+        - 去AI腔
+    chapter_goal: 生成第1章：主角进入宗门
+    chapter_num: 1
+    chapter_id: ch-1
+    checks:
+      min_word_count: 100
+      hook_presence: true
+      no_forbidden_patterns: true
+    forbidden_patterns:
+      - "注："
+      - "以下是"
+      - "请注意"
+
+  - id: hook_strength_case
+    description: Hook strength — chapter must end with strong hook
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: alive
+          location: 青云宗
+      hooks: []
+      chapters: []
+      style_constraints: []
+    chapter_goal: 生成第1章：主角通过入门考验
+    chapter_num: 1
+    chapter_id: ch-2
+    checks:
+      min_word_count: 150
+      hook_presence: true
+      no_forbidden_patterns: true
+    forbidden_patterns:
+      - "接下来"
+      - "然后"
+
+  - id: local_rewrite_case
+    description: Local rewrite — diff must be non-empty when rewrite instructions differ
+    original_text: 师父看了他一眼，没有说话。
+    context_before: 夜雨刚停，山门仍冷。
+    context_after: 李明低头，不敢再问。
+    rewrite_instructions: 加强压抑感
+    chapter_id: ch-1
+    checks:
+      diff_non_empty: true
+      tone_shift_detected: true
