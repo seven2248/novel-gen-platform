@@ -50,4 +50,6 @@ def run_committer(
     if not valid:
         raise ValueError(f"Committer output validation failed: {err}")
 
+    result["correlation_id"] = correlation_id
+
     return result

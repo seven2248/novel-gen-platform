@@ -101,7 +101,21 @@ class TestRunOrchestrator:
             chapter_num=1,
         )
         assert "correlation_id" in result
-        assert len(result["correlation_id"]) == 8
+    def test_orchestrator_correlation_id_in_each_agent_output(self, fake_story_state):
+        """W19 Finding 1 fix: correlation_id 必须出现在每个 agent 的输出 dict 中"""
+        cid = "test-cid-42"
+        result = run_orchestrator(
+            story_state=fake_story_state,
+            chapter_goal="生成第1章",
+            chapter_num=1,
+            correlation_id=cid,
+        )
+        assert result["plan"]["correlation_id"] == cid, "planner 输出缺少 correlation_id"
+        assert result["draft"]["correlation_id"] == cid, "writer 输出缺少 correlation_id"
+        assert result["review"]["correlation_id"] == cid, "reviewer 输出缺少 correlation_id"
+        assert result["commit_preview"]["correlation_id"] == cid, "committer 输出缺少 correlation_id"
+        assert result["correlation_id"] == cid, "orchestrator 返回值缺少 correlation_id"
+
 
     def test_orchestrator_accepts_custom_correlation_id(self, fake_story_state):
         result = run_orchestrator(

@@ -61,5 +61,8 @@ def run_planner(
         raise ValueError(f"Planner output validation failed: {err}")
 
     result["warnings"] = []
+    result["correlation_id"] = correlation_id
+
+    return result
 
     return result

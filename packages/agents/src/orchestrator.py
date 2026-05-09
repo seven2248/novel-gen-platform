@@ -88,7 +88,6 @@ def run_orchestrator(
     chapter_goal: str,
     chapter_id: str | None = None,
     chapter_num: int | None = None,
-    project_id: str | None = None,
     correlation_id: str | None = None,
 ) -> dict:
     """
@@ -99,15 +98,14 @@ def run_orchestrator(
         chapter_goal:   本章目标描述
         chapter_id:     章节 ID（可选，默认自动生成）
         chapter_num:    章节序号（可选）
-        project_id:     项目 ID（用于事件记录，可选）
         correlation_id: 链路追踪 ID（可选，默认自动生成）
 
     Returns:
         {
-            "plan":            Planner 输出,
-            "draft":           Writer 输出,
-            "review":          Reviewer 输出,
-            "commit_preview":  Committer 输出,
+            "plan":            Planner 输出（包含 correlation_id）,
+            "draft":           Writer 输出（包含 correlation_id）,
+            "review":          Reviewer 输出（包含 correlation_id）,
+            "commit_preview":  Committer 输出（包含 correlation_id）,
             "warnings":        聚合的 warning 列表,
             "correlation_id":  链路追踪 ID,
             "chapter_id":      实际使用的章节 ID,
@@ -156,16 +154,14 @@ def run_orchestrator(
 
     # -------- Warning 聚合 --------
     # 从各 agent 输出中提取 warnings，统一平铺返回
+    # 使用 dict spread 避免原地修改 agent 返回值
     all_warnings = []
 
-    # Planner / Writer 当前无 warnings 字段，返回空列表
     for w in plan.get("warnings", []):
-        w["_source"] = "planner"
-        all_warnings.append(w)
+        all_warnings.append({"_source": "planner", **w})
 
     for w in draft.get("warnings", []):
-        w["_source"] = "writer"
-        all_warnings.append(w)
+        all_warnings.append({"_source": "writer", **w})
 
     # Reviewer：consistency_issues + style_issues 转为 warnings
     for issue in review.get("consistency_issues", []):
@@ -203,8 +199,7 @@ def run_orchestrator(
 
     # Committer warnings（已经是标准格式）
     for w in commit_preview.get("warnings", []):
-        w["_source"] = "committer"
-        all_warnings.append(w)
+        all_warnings.append({"_source": "committer", **w})
 
     return {
         "plan": plan,

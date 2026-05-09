@@ -72,5 +72,8 @@ def run_reviewer(
         raise ValueError(f"Reviewer output validation failed: {err}")
 
     result["warnings"] = []
+    result["correlation_id"] = correlation_id
+
+    return result
 
     return result
