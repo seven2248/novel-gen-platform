@@ -20,13 +20,14 @@
         <span class="chapter-state" :class="'state-' + ch.state">{{ stateLabel(ch.state) }}</span>
       </div>
 
-      <el-empty v-if="!loading && chapters.length === 0" description="暂无章节" :image-size="60" />
+      <el-empty v-if="!loading && loadError" description="加载失败" :image-size="60" />
+      <el-empty v-else-if="!loading && chapters.length === 0 && !loadError" description="暂无章节" :image-size="60" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { getProject } from '@/api/client'
 import type { ChapterSummary } from '@/api/types'
 
@@ -41,13 +42,16 @@ defineEmits<{
 
 const chapters = ref<ChapterSummary[]>([])
 const loading = ref(false)
+const loadError = ref<string | null>(null)
 
 async function loadChapters() {
   loading.value = true
+  loadError.value = null
   try {
     const proj = await getProject(props.projectId)
     chapters.value = proj.chapters_json || []
-  } catch {
+  } catch (err) {
+    loadError.value = err instanceof Error ? err.message : '加载失败'
     chapters.value = []
   } finally {
     loading.value = false
@@ -63,6 +67,8 @@ function stateLabel(state: string): string {
   }
   return map[state] ?? state
 }
+
+watch(() => props.projectId, () => loadChapters())
 
 onMounted(loadChapters)
 </script>

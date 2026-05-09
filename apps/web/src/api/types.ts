@@ -21,6 +21,15 @@ export interface EventRecord {
   project_id: string
   correlation_id: string | null
   event_type: string
+  actor_type: string | null
+  causation_id: string | null
+  payload: Record<string, unknown>
+  created_at: string
+}
+  id: number
+  project_id: string
+  correlation_id: string | null
+  event_type: string
   agent_id: string | null
   payload: Record<string, unknown>
   created_at: string

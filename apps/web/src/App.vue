@@ -10,7 +10,7 @@
     </el-aside>
 
     <!-- Resizer -->
-    <div class="resizer" @mousedown="startResize('left')"></div>
+    <div class="resizer" @mousedown="startResize('left', $event)"></div>
 
     <!-- Center: Workspace -->
     <el-main class="panel panel-center">
@@ -20,7 +20,7 @@
     </el-main>
 
     <!-- Resizer -->
-    <div class="resizer" @mousedown="startResize('right')"></div>
+    <div class="resizer" @mousedown="startResize('right', $event)"></div>
 
     <!-- Right: Review + Commit Preview -->
     <el-aside class="panel panel-right" :width="rightWidth + 'px'">
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import ChapterPanel from '@/components/ChapterPanel.vue'
 import ReviewPanel from '@/components/ReviewPanel.vue'
 import { getEvents } from '@/api/client'
@@ -65,9 +65,9 @@ let resizeTarget: 'left' | 'right' | null = null
 let resizeStartX = 0
 let resizeStartW = 0
 
-function startResize(target: 'left' | 'right') {
+function startResize(target: 'left' | 'right', e: MouseEvent) {
   resizeTarget = target
-  resizeStartX = (event as MouseEvent).clientX
+  resizeStartX = e.clientX
   resizeStartW = target === 'left' ? leftWidth.value : rightWidth.value
   window.addEventListener('mousemove', onResizeMove)
   window.addEventListener('mouseup', stopResize)
@@ -88,6 +88,8 @@ function stopResize() {
   window.removeEventListener('mousemove', onResizeMove)
   window.removeEventListener('mouseup', stopResize)
 }
+
+onUnmounted(stopResize)
 </script>
 
 <style>
@@ -108,7 +110,7 @@ html, body, #app {
 }
 
 .panel-left {
-  border-right: 1px solid #2a2a26;
+  /* border-right handled by .panel */
 }
 
 .panel-center {

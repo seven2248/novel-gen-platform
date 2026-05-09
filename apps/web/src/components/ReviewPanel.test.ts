@@ -8,8 +8,8 @@ const mockEvents = [
     project_id: 'p1',
     event_type: 'chapter_created',
     actor_type: 'agent',
-    correlation_id: 'ch1',
     causation_id: '',
+    correlation_id: 'ch1',
     payload: { chapter_id: 'ch1' },
     created_at: '2026-05-09T10:00:00'
   },
@@ -18,8 +18,8 @@ const mockEvents = [
     project_id: 'p1',
     event_type: 'chapter_committed',
     actor_type: 'agent',
-    correlation_id: 'ch1',
     causation_id: '',
+    correlation_id: 'ch1',
     payload: { chapter_id: 'ch1', version: 2 },
     created_at: '2026-05-09T11:00:00'
   }
@@ -45,7 +45,9 @@ describe('ReviewPanel', () => {
     const wrapper = mount(ReviewPanel, {
       props: { projectId: 'p1', chapterId: 'ch1', events: mockEvents }
     })
-    await wrapper.findAll('.el-tab-pane')[1].trigger('click')
+    // Use .el-tabs__item (Element Plus public class) to switch tabs
+    const tabs = wrapper.findAll('.el-tabs__item')
+    await tabs[1].trigger('click')
     await wrapper.vm.$nextTick()
     const block = wrapper.find('.commit-block')
     expect(block.exists()).toBe(true)
@@ -56,8 +58,7 @@ describe('ReviewPanel', () => {
     const wrapper = mount(ReviewPanel, {
       props: { projectId: 'p1', chapterId: 'ch1', events: mockEvents }
     })
-    // Switch to commit tab
-    const tabs = wrapper.findAll('.el-tab-pane')
+    const tabs = wrapper.findAll('.el-tabs__item')
     await tabs[1].trigger('click')
     await wrapper.vm.$nextTick()
     const block = wrapper.find('.commit-block')
