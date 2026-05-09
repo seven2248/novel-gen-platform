@@ -25,14 +25,16 @@ DEFAULT_PLANNER_SYSTEM = """你是一个专业的小说规划师 Agent。你的�
 PLANNER_SYSTEM = load_prompt("planner_system") or DEFAULT_PLANNER_SYSTEM
 
 
-def run_planner(chapter_goal: str, story_state: dict, chapter_num: int) -> dict:
+def run_planner(
+    chapter_goal: str, story_state: dict, chapter_num: int, correlation_id: str = ""
+) -> dict:
     client = ClaudeClient()
 
     context = f"""当前章节号: {chapter_num}
-故事标题: {story_state.get('title', '')}
-已有角色: {json.dumps(story_state.get('characters', [])[:5], ensure_ascii=False)}
-已有钩子(未支付): {json.dumps([h for h in story_state.get('hooks', []) if h.get('status') == 'open'][:3], ensure_ascii=False)}
-已有章节摘要: {json.dumps(story_state.get('chapters', [])[-3:], ensure_ascii=False)}"""
+故事标题: {story_state.get("title", "")}
+已有角色: {json.dumps(story_state.get("characters", [])[:5], ensure_ascii=False)}
+已有钩子(未支付): {json.dumps([h for h in story_state.get("hooks", []) if h.get("status") == "open"][:3], ensure_ascii=False)}
+已有章节摘要: {json.dumps(story_state.get("chapters", [])[-3:], ensure_ascii=False)}"""
 
     user_prompt = f"""章节目标: {chapter_goal}
 
@@ -50,11 +52,17 @@ def run_planner(chapter_goal: str, story_state: dict, chapter_num: int) -> dict:
             "cards_attached": [],
             "context_hints": [],
             "required_hooks": [],
-            "tone_hint": "中性"
+            "tone_hint": "中性",
+            "warnings": [],
         }
 
     valid, err = validate_payload(result, "agent_io/planner_output.schema.json")
     if not valid:
         raise ValueError(f"Planner output validation failed: {err}")
+
+    result["warnings"] = []
+    result["correlation_id"] = correlation_id
+
+    return result
 
     return result

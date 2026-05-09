@@ -25,3 +25,8 @@ clean:
 	rm -rf tests/**/__pycache__
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+
+
+# Run Vue web shell (dev mode, proxies to FastAPI on :8000)
+dev-web:
+	cd apps/web && npm install && npm run dev

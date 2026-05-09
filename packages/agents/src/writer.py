@@ -25,14 +25,16 @@ DEFAULT_WRITER_SYSTEM = """你是一个专业的小说写作者 Agent。你的�
 WRITER_SYSTEM = load_prompt("writer_system") or DEFAULT_WRITER_SYSTEM
 
 
-def run_writer(planner_output: dict, story_state: dict, chapter_num: int) -> dict:
+def run_writer(
+    planner_output: dict, story_state: dict, chapter_num: int, correlation_id: str = ""
+) -> dict:
     client = ClaudeClient()
 
     context = f"""当前章节号: {chapter_num}
-章节目标: {planner_output.get('chapter_goal', '')}
-情节节奏: {json.dumps(planner_output.get('beats', []), ensure_ascii=False)}
-角色设定: {json.dumps(story_state.get('characters', [])[:3], ensure_ascii=False, indent=2)}
-风格约束: {json.dumps(story_state.get('style_constraints', []), ensure_ascii=False)}"""
+章节目标: {planner_output.get("chapter_goal", "")}
+情节节奏: {json.dumps(planner_output.get("beats", []), ensure_ascii=False)}
+角色设定: {json.dumps(story_state.get("characters", [])[:3], ensure_ascii=False, indent=2)}
+风格约束: {json.dumps(story_state.get("style_constraints", []), ensure_ascii=False)}"""
 
     user_prompt = f"""请根据以下规划，生成完整的章节草稿：
 
@@ -40,7 +42,9 @@ def run_writer(planner_output: dict, story_state: dict, chapter_num: int) -> dic
 
 输出 JSON。"""
 
-    response = client.generate(WRITER_SYSTEM, user_prompt, max_tokens=8192, agent_type="writer")
+    response = client.generate(
+        WRITER_SYSTEM, user_prompt, max_tokens=8192, agent_type="writer"
+    )
     try:
         result = json.loads(response)
     except json.JSONDecodeError:
@@ -48,11 +52,17 @@ def run_writer(planner_output: dict, story_state: dict, chapter_num: int) -> dic
             "draft_text": response[:3000],
             "used_hooks": [],
             "used_cards": [],
-            "open_questions": []
+            "open_questions": [],
+            "warnings": [],
         }
 
     valid, err = validate_payload(result, "agent_io/writer_output.schema.json")
     if not valid:
         raise ValueError(f"Writer output validation failed: {err}")
+
+    result["warnings"] = []
+    result["correlation_id"] = correlation_id
+
+    return result
 
     return result

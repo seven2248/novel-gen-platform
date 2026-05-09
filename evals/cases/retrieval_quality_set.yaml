@@ -1,0 +1,279 @@
+MP|name: retrieval_quality_set
+JQ|description: Phase B retrieval quality evaluation — 5 cases covering character/hook/information retention
+TX|cases:
+  - id: retrieval_ch3_character_status_retention
+    description: Chapter 3 generating — character's death in ch2 should be reflected in ch3 summary
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: alive
+          location: 青云宗
+          chapter_introduced: 1
+        - id: char-2
+          name: 王师兄
+          status: dead
+          location: 青云宗
+          chapter_introduced: 1
+      hooks:
+        - id: hook-1
+          type: foreshadow
+          status: open
+          description: 神秘古剑的秘密
+          chapter_introduced: 1
+      chapters:
+        - chapter_id: ch-1
+          chapter_number: 1
+          summary: "第1章：李明进入青云宗，遇见王师兄。王师兄带他熟悉山门。"
+          word_count: 1200
+          state: committed
+        - chapter_id: ch-2
+          chapter_number: 2
+          summary: "第2章：王师兄在宗门试炼中意外身亡，李明悲痛万分，发誓要查明真相。"
+          word_count: 1500
+          state: committed
+      plot_markers: []
+    chapter_goal: 生成第3章：李明在师父指导下开始修炼
+    chapter_num: 3
+    chapter_id: ch-3
+    checks:
+      character_retention: true
+      hook_tracking: true
+      no_information_loss: true
+    expected_behavior:
+      - summary_should_mention_char_death: true
+      - open_hooks_tracked: true
+    failure_hints:
+      character_retention: "角色死亡状态未在摘要中反映"
+      hook_tracking: "神秘古剑伏笔未被追踪"
+
+  - id: retrieval_ch5_multiple_characters_active
+    description: Chapter 5 generating — 3 active characters should be mentioned in context
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: active
+          location: 青云宗
+          chapter_introduced: 1
+        - id: char-2
+          name: 小芳
+          status: active
+          location: 青云宗
+          chapter_introduced: 2
+        - id: char-3
+          name: 赵长老
+          status: active
+          location: 青云宗后山
+          chapter_introduced: 3
+      hooks:
+        - id: hook-1
+          type: mystery
+          status: open
+          description: 古剑之谜
+          chapter_introduced: 1
+        - id: hook-2
+          type: romance
+          status: open
+          description: 李明与小芳的情愫
+          chapter_introduced: 2
+      chapters:
+        - chapter_id: ch-1
+          chapter_number: 1
+          summary: "第1章：李明进入青云宗，遇见王师兄。"
+          word_count: 1200
+          state: committed
+        - chapter_id: ch-2
+          chapter_number: 2
+          summary: "第2章：李明结识小芳，两人渐生情愫。王师兄在试炼中身亡。"
+          word_count: 1500
+          state: committed
+        - chapter_id: ch-3
+          chapter_number: 3
+          summary: "第3章：赵长老出场，指导李明修炼，发现他有特殊天赋。"
+          word_count: 1400
+          state: committed
+        - chapter_id: ch-4
+          chapter_number: 4
+          summary: "第4章：李明修炼进展迅速，小芳前来探望。赵长老提及古剑传说。"
+          word_count: 1600
+          state: committed
+      plot_markers: []
+    chapter_goal: 生成第5章：李明修炼遇到瓶颈，古剑突然发出异动
+    chapter_num: 5
+    chapter_id: ch-5
+    checks:
+      character_retention: true
+      hook_tracking: true
+      no_information_loss: false
+    expected_behavior:
+      - all_3_characters_mentioned: true
+      - both_hooks_tracked: true
+
+  - id: retrieval_ch2_first_chapter_no_prior
+    description: Chapter 2 generating — first chapter context should be clean (no false positives)
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: active
+          location: 青云宗
+          chapter_introduced: 1
+      hooks:
+        - id: hook-1
+          type: foreshadow
+          status: open
+          description: 入门考验的真相
+          chapter_introduced: 1
+      chapters:
+        - chapter_id: ch-1
+          chapter_number: 1
+          summary: "第1章：李明站在青云宗山门外，深吸一口气准备入门考验。"
+          word_count: 1000
+          state: committed
+      plot_markers: []
+    chapter_goal: 生成第2章：李明通过入门考验，正式成为青云宗弟子
+    chapter_num: 2
+    chapter_id: ch-2
+    checks:
+      character_retention: false
+      hook_tracking: false
+      no_information_loss: true
+    expected_behavior:
+      - no_false_positive_failures: true
+      - prior_chapter_summary_used: true
+
+  - id: retrieval_ch6_hook_resolution
+    description: Chapter 6 generating — hook introduced in ch1 and resolved in ch6 should show resolution
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: active
+          location: 青云宗
+          chapter_introduced: 1
+      hooks:
+        - id: hook-1
+          type: mystery
+          status: open
+          description: 神秘古剑的秘密
+          chapter_introduced: 1
+        - id: hook-2
+          type: mystery
+          status: open
+          description: 赵长老的过去
+          chapter_introduced: 3
+      chapters:
+        - chapter_id: ch-1
+          chapter_number: 1
+          summary: "第1章：李明进入青云宗，得知古剑传说。"
+          word_count: 1200
+          state: committed
+        - chapter_id: ch-2
+          chapter_number: 2
+          summary: "第2章：李明通过入门考验。"
+          word_count: 1100
+          state: committed
+        - chapter_id: ch-3
+          chapter_number: 3
+          summary: "第3章：赵长老出场，古剑有异动迹象。"
+          word_count: 1300
+          state: committed
+        - chapter_id: ch-4
+          chapter_number: 4
+          summary: "第4章：李明修炼遇到瓶颈。"
+          word_count: 1400
+          state: committed
+        - chapter_id: ch-5
+          chapter_number: 5
+          summary: "第5章：古剑异动加剧，赵长老神色凝重。"
+          word_count: 1500
+          state: committed
+      plot_markers: []
+    chapter_goal: 生成第6章：古剑之谜揭开，赵长老道出真相
+    chapter_num: 6
+    chapter_id: ch-6
+    checks:
+      character_retention: false
+      hook_tracking: true
+      no_information_loss: true
+    expected_behavior:
+      - hook_resolution_detected: true
+      - no_untracked_hooks: true
+
+  - id: retrieval_ch7_information_loss_detection
+    description: Chapter 7 generating — key plot point from ch3 should be retained
+    story_state:
+      title: 测试小说
+      genre: 玄幻
+      style: 古典
+      characters:
+        - id: char-1
+          name: 李明
+          status: active
+          location: 青云宗
+          chapter_introduced: 1
+      hooks:
+        - id: hook-1
+          type: foreshadow
+          status: open
+          description: 古剑觉醒
+          chapter_introduced: 3
+      chapters:
+        - chapter_id: ch-1
+          chapter_number: 1
+          summary: "第1章：李明进入青云宗。"
+          word_count: 1000
+          state: committed
+        - chapter_id: ch-2
+          chapter_number: 2
+          summary: "第2章：李明通过入门考验。"
+          word_count: 1100
+          state: committed
+        - chapter_id: ch-3
+          chapter_number: 3
+          summary: "第3章：李明在后山发现一把古剑，剑身刻有「青云」二字，赵长老神色骤变。"
+          word_count: 1300
+          state: committed
+        - chapter_id: ch-4
+          chapter_number: 4
+          summary: "第4章：李明开始修炼。"
+          word_count: 1200
+          state: committed
+        - chapter_id: ch-5
+          chapter_number: 5
+          summary: "第5章：古剑持续异动。"
+          word_count: 1400
+          state: committed
+        - chapter_id: ch-6
+          chapter_number: 6
+          summary: "第6章：古剑异动引发宗门震动。"
+          word_count: 1500
+          state: committed
+      plot_markers:
+        - text: "青云二字"
+          chapter: 3
+        - text: "赵长老神色骤变"
+          chapter: 3
+    chapter_goal: 生成第7章：李明尝试与古剑沟通
+    chapter_num: 7
+    chapter_id: ch-7
+    checks:
+      character_retention: false
+      hook_tracking: true
+      no_information_loss: true
+    expected_behavior:
+      - key_plot_markers_preserved: true
+      - hook_tracked: true

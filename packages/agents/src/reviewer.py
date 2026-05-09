@@ -32,13 +32,15 @@ DEFAULT_REVIEWER_SYSTEM = """你是一个专业的小说审查员 Agent。你的
 REVIEWER_SYSTEM = load_prompt("reviewer_system") or DEFAULT_REVIEWER_SYSTEM
 
 
-def run_reviewer(draft_text: str, story_state: dict, planner_output: dict) -> dict:
+def run_reviewer(
+    draft_text: str, story_state: dict, planner_output: dict, correlation_id: str = ""
+) -> dict:
     client = ClaudeClient()
 
-    context = f"""章节目标: {planner_output.get('chapter_goal', '')}
-情节节奏: {json.dumps(planner_output.get('beats', []), ensure_ascii=False)}
-角色设定: {json.dumps(story_state.get('characters', [])[:3], ensure_ascii=False)}
-已有钩子: {json.dumps(story_state.get('hooks', [])[:3], ensure_ascii=False)}"""
+    context = f"""章节目标: {planner_output.get("chapter_goal", "")}
+情节节奏: {json.dumps(planner_output.get("beats", []), ensure_ascii=False)}
+角色设定: {json.dumps(story_state.get("characters", [])[:3], ensure_ascii=False)}
+已有钩子: {json.dumps(story_state.get("hooks", [])[:3], ensure_ascii=False)}"""
 
     user_prompt = f"""请审查以下章节草稿：
 
@@ -49,7 +51,9 @@ def run_reviewer(draft_text: str, story_state: dict, planner_output: dict) -> di
 
 输出 JSON。"""
 
-    response = client.generate(REVIEWER_SYSTEM, user_prompt, max_tokens=4096, agent_type="reviewer")
+    response = client.generate(
+        REVIEWER_SYSTEM, user_prompt, max_tokens=4096, agent_type="reviewer"
+    )
     try:
         result = json.loads(response)
     except json.JSONDecodeError:
@@ -59,11 +63,17 @@ def run_reviewer(draft_text: str, story_state: dict, planner_output: dict) -> di
             "readability_score": 70,
             "hook_strength_score": 65,
             "actionable_suggestions": [],
-            "risk_level": "medium"
+            "risk_level": "medium",
+            "warnings": [],
         }
 
     valid, err = validate_payload(result, "agent_io/reviewer_output.schema.json")
     if not valid:
         raise ValueError(f"Reviewer output validation failed: {err}")
+
+    result["warnings"] = []
+    result["correlation_id"] = correlation_id
+
+    return result
 
     return result

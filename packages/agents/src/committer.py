@@ -7,7 +7,8 @@ def run_committer(
     reviewer_output: dict,
     chapter_id: str,
     story_state: dict,
-    chapter_num: int | None = None
+    chapter_num: int | None = None,
+    correlation_id: str = "",
 ) -> dict:
     """Committer 生成状态 diff 预览（不直接写入）"""
 
@@ -23,28 +24,32 @@ def run_committer(
                 "chapter_number": chapter_num,
                 "summary": draft_text[:200] + "...",
                 "word_count": len(draft_text),
-                "state": "committed"
+                "state": "committed",
             }
         ],
         "update": [],
-        "remove": []
+        "remove": [],
     }
 
     result = {
         "state_diff": state_diff,
         "projection_refresh_targets": ["chapters", "hooks"],
-        "warnings": []
+        "warnings": [],
     }
 
     if reviewer_output.get("risk_level") == "high":
-        result["warnings"].append({
-            "type": "high_risk",
-            "message": "审查评分偏低，建议人工确认后再回写",
-            "severity": "warn"
-        })
+        result["warnings"].append(
+            {
+                "type": "high_risk",
+                "message": "审查评分偏低，建议人工确认后再回写",
+                "severity": "warn",
+            }
+        )
 
     valid, err = validate_payload(result, "agent_io/committer_output.schema.json")
     if not valid:
         raise ValueError(f"Committer output validation failed: {err}")
+
+    result["correlation_id"] = correlation_id
 
     return result
