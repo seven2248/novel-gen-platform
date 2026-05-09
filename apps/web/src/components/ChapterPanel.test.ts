@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { defineComponent, ref } from 'vue'
+import { mount, flushPromises } from '@vue/test-utils'
 import ChapterPanel from '@/components/ChapterPanel.vue'
 import * as api from '@/api/client'
 
-// Mock the API client
+// Mock the API client - must be before any imports of the component
 vi.mock('@/api/client', () => ({
   getProject: vi.fn()
 }))
@@ -27,7 +26,7 @@ describe('ChapterPanel', () => {
     const wrapper = mount(ChapterPanel, {
       props: { projectId: 'p1', selectedChapterId: null }
     })
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     expect(wrapper.find('.el-empty').exists()).toBe(true)
   })
 
@@ -38,7 +37,7 @@ describe('ChapterPanel', () => {
     const wrapper = mount(ChapterPanel, {
       props: { projectId: 'p1', selectedChapterId: null }
     })
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     const items = wrapper.findAll('.chapter-item')
     expect(items).toHaveLength(3)
   })
@@ -50,7 +49,7 @@ describe('ChapterPanel', () => {
     const wrapper = mount(ChapterPanel, {
       props: { projectId: 'p1', selectedChapterId: null }
     })
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     await wrapper.findAll('.chapter-item')[1].trigger('click')
     expect(wrapper.emitted('select-chapter')).toBeTruthy()
     expect(wrapper.emitted('select-chapter')![0]).toEqual(['ch2'])
@@ -63,7 +62,7 @@ describe('ChapterPanel', () => {
     const wrapper = mount(ChapterPanel, {
       props: { projectId: 'p1', selectedChapterId: 'ch2' }
     })
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     const active = wrapper.find('.chapter-item.active')
     expect(active.exists()).toBe(true)
     expect(active.text()).toContain('第二章')
@@ -76,7 +75,7 @@ describe('ChapterPanel', () => {
     const wrapper = mount(ChapterPanel, {
       props: { projectId: 'p1', selectedChapterId: null }
     })
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     const draft = wrapper.find('.state-draft')
     const review = wrapper.find('.state-review')
     const committed = wrapper.find('.state-committed')
