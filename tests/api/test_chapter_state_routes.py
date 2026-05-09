@@ -114,3 +114,74 @@ def test_get_project(client, session):
     body = response.json()
     assert body["project_id"] == "proj-1"
     assert body["title"] == "Test Project"
+
+
+
+def test_committed_to_drafting_requires_explicit_reset(client, session):
+    """W19: committed→drafting 没有 explicit_reset=True 时返回 400"""
+    from services.api.app.repositories.story_state_repository import StoryStateRepository
+    repo = StoryStateRepository(session)
+    repo.get_or_create_project("proj-1")
+    repo.create_chapter("proj-1", "ch-1", chapter_number=1)
+    # 推进到 committed
+    repo.update_chapter_state("proj-1", "ch-1", "reviewing", expected_version=0)
+    repo.update_chapter_state("proj-1", "ch-1", "committed", expected_version=1)
+
+    response = client.patch(
+        "/projects/proj-1/chapters/ch-1/state",
+        json={"state": "drafting", "version": 2},
+    )
+    assert response.status_code == 400
+    body = response.json()
+    assert body["detail"]["error"] == "invalid_state_transition"
+    assert "explicit_reset" in body["detail"]["message"]
+
+
+def test_committed_to_drafting_with_explicit_reset_succeeds(client, session):
+    """W19: committed→drafting + explicit_reset=True 允许"""
+    from services.api.app.repositories.story_state_repository import StoryStateRepository
+    repo = StoryStateRepository(session)
+    repo.get_or_create_project("proj-1")
+    repo.create_chapter("proj-1", "ch-1", chapter_number=1)
+    repo.update_chapter_state("proj-1", "ch-1", "reviewing", expected_version=0)
+    repo.update_chapter_state("proj-1", "ch-1", "committed", expected_version=1)
+
+    response = client.patch(
+        "/projects/proj-1/chapters/ch-1/state",
+        json={"state": "drafting", "version": 2, "explicit_reset": True},
+    )
+    assert response.status_code == 200
+    assert response.json()["state"] == "drafting"
+
+
+def test_committed_to_reviewing_allowed(client, session):
+    """committed→reviewing 是 forward 方向，允许"""
+    from services.api.app.repositories.story_state_repository import StoryStateRepository
+    repo = StoryStateRepository(session)
+    repo.get_or_create_project("proj-1")
+    repo.create_chapter("proj-1", "ch-1", chapter_number=1)
+    repo.update_chapter_state("proj-1", "ch-1", "reviewing", expected_version=0)
+    repo.update_chapter_state("proj-1", "ch-1", "committed", expected_version=1)
+
+    response = client.patch(
+        "/projects/proj-1/chapters/ch-1/state",
+        json={"state": "reviewing", "version": 2},
+    )
+    assert response.status_code == 200
+
+
+def test_committed_to_not_started_rejected(client, session):
+    """committed→not_started 是非法跳转，返回 400"""
+    from services.api.app.repositories.story_state_repository import StoryStateRepository
+    repo = StoryStateRepository(session)
+    repo.get_or_create_project("proj-1")
+    repo.create_chapter("proj-1", "ch-1", chapter_number=1)
+    repo.update_chapter_state("proj-1", "ch-1", "reviewing", expected_version=0)
+    repo.update_chapter_state("proj-1", "ch-1", "committed", expected_version=1)
+
+    response = client.patch(
+        "/projects/proj-1/chapters/ch-1/state",
+        json={"state": "not_started", "version": 2},
+    )
+    assert response.status_code == 400
+    assert "非法状态迁移" in response.json()["detail"]["message"]
