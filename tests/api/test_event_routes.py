@@ -99,7 +99,7 @@ class TestEventQuery:
         events = response.json()
         assert len(events) == 1
         e = events[0]
-        assert set(e.keys()) == {"id", "event_type", "actor_type", "correlation_id", "causation_id", "payload", "created_at"}
+        assert set(e.keys()) == {"id", "project_id", "event_type", "actor_type", "correlation_id", "causation_id", "payload", "created_at"}
         assert e["event_type"] == "planner.completed"
         assert e["correlation_id"] == "def456"
         assert e["payload"]["chapter_num"] == 2
